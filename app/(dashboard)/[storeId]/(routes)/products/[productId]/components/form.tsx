@@ -48,6 +48,7 @@ const formSchema = z.object({
   name: z.string().min(1),
   images: z.object({ url: z.string() }).array(),
   price: z.coerce.number().min(1),
+  amount: z.coerce.number().min(0),
   categoryId: z.string().min(1),
   colorId: z.string().min(1),
   sizeId: z.string().min(1),
@@ -76,11 +77,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
-      ? { ...initialData, price: parseFloat(String(initialData?.price)) }
+      ? {
+          ...initialData,
+          price: parseFloat(String(initialData?.price)),
+          amount: parseInt(String(initialData?.amount)),
+        }
       : {
           name: "",
           images: [],
           price: 0,
+          amount: 0,
           categoryId: "",
           colorId: "",
           sizeId: "",
@@ -212,6 +218,26 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       min="0"
                       disabled={isLoading}
                       placeholder="9.99"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="1"
+                      min="0"
+                      disabled={isLoading}
+                      placeholder="In Stock"
                       {...field}
                     />
                   </FormControl>
