@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { label, imageUrl } = body;
+    const { label, imageUrl, isDefault } = body;
 
     if (!label) {
       return new NextResponse("Label is required", { status: 400 });
@@ -42,6 +42,10 @@ export async function PATCH(
 
     if (!imageUrl) {
       return new NextResponse("ImageUrl is required", { status: 400 });
+    }
+
+    if (!isDefault) {
+      return new NextResponse("IsDefault is required", { status: 400 });
     }
 
     if (!params.billboardId) {
@@ -58,18 +62,34 @@ export async function PATCH(
     if (!storeByUserId) {
       return new NextResponse("Unauthorized", { status: 403 });
     }
+    const transaction = await prismadb.$transaction(async (tx) => {
+      const billboard = await tx.billboard.update({
+        where: {
+          id: params.billboardId,
+        },
+        data: {
+          label,
+          imageUrl,
+          isDefault,
+        },
+      });
 
-    const billboard = await prismadb.billboard.update({
-      where: {
-        id: params.billboardId,
-      },
-      data: {
-        label,
-        imageUrl,
-      },
+      if (isDefault) {
+        const notDefaultbillboards = await tx.billboard.updateMany({
+          where: {
+            NOT: {
+              id: params.billboardId,
+            },
+          },
+          data: {
+            isDefault: false,
+          },
+        });
+      }
+      return billboard;
     });
 
-    return NextResponse.json(billboard);
+    return NextResponse.json(transaction);
   } catch (error) {
     console.log("[BILLBOARD_PATCH]", error);
     return new NextResponse("Internal error", { status: 500 });

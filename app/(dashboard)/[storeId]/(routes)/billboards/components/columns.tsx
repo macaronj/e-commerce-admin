@@ -6,6 +6,7 @@ import { TabelCellAction } from "./table-cell-action";
 export type BillboardColumn = {
   id: string;
   label: string;
+  isDefault: boolean;
   createdAt: string;
 };
 
@@ -13,6 +14,10 @@ export const columns: ColumnDef<BillboardColumn>[] = [
   {
     accessorKey: "label",
     header: "label",
+  },
+  {
+    accessorKey: "isDefault",
+    header: "isDefault",
   },
   {
     accessorKey: "createdAt",

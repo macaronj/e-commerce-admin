@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import Heading from "@/components/ui/heading";
 import ImageUpload from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,7 @@ interface BillboardFormProps {
 const formSchema = z.object({
   label: z.string().min(1),
   imageUrl: z.string().min(1),
+  isDefault: z.boolean(),
 });
 
 type BillboardFormValues = z.infer<typeof formSchema>;
@@ -54,6 +57,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       label: "",
+      isDefault: false,
       imageUrl: "",
     },
   });
@@ -171,6 +175,28 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                 </FormItem>
               )}
             ></FormField>
+          </div>
+          <div className="grid grid-cols-3 gap-8">
+            <FormField
+              control={form.control}
+              name="isDefault"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Default</FormLabel>
+                    <FormDescription>
+                      This billboard will be displayed first.
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
           </div>
           <Button disabled={isLoading} className="ml-auto" type="submit">
             {action}
