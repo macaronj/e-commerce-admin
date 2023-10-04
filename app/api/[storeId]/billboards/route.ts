@@ -80,6 +80,20 @@ export async function GET(
     if (!params.storeId) {
       return new NextResponse("StoreId is required", { status: 400 });
     }
+
+    const { searchParams } = new URL(req.url);
+    const isDefault = searchParams.get("isDefault");
+
+    if (isDefault) {
+      const billboards = await prismadb.billboard.findFirstOrThrow({
+        where: {
+          storeId: params.storeId,
+          isDefault: isDefault ? true : false,
+        },
+      });
+      return NextResponse.json(billboards);
+    }
+
     const billboards = await prismadb.billboard.findMany({
       where: {
         storeId: params.storeId,
